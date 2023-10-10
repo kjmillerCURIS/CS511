@@ -9,7 +9,6 @@ import Library.Tactic.Numbers
 import Library.Tactic.Addarith
 import Library.Tactic.Cancel
 import Library.Tactic.Use
-import Library.Tactic.Induction
 namespace Nat
 
 
