@@ -9,6 +9,7 @@ import Library.Tactic.Numbers
 import Library.Tactic.Addarith
 import Library.Tactic.Cancel
 import Library.Tactic.Use
+import Library.Tactic.Induction
 namespace Nat
 
 
@@ -77,13 +78,10 @@ example {k : ℕ} : k ^ 2 ≤ 6 ↔ k = 0 ∨ k = 1 ∨ k = 2 := by
 
 
 --Macbeth 4.3.2
---I couldn't get the "simp" trick to work, so I ended up changing the goal to something equivalent
---example : ∃! x : ℚ, ∀ a, a ≥ 1 → a ≤ 3 → (a - x) ^ 2 ≤ 1 := by
-example : ∃! x : ℚ, ∀ a, (a ≥ 1 ∧ a ≤ 3) → (a - x) ^ 2 ≤ 1 := by
+example : ∃! x : ℚ, ∀ a, a ≥ 1 → a ≤ 3 → (a - x) ^ 2 ≤ 1 := by
   --first part, show that 1 works
-  have hgoal : ∀ a : ℚ, (a ≥ 1 ∧ a ≤ 3) → (a - 2) ^ 2 ≤ 1 := by --(note to self: modify this if simp ends up working)
-    intro a hahaa --(note to self: modify this if simp ends up working)
-    obtain ⟨ha, haa⟩ := hahaa --(note to self: modify this if simp ends up working)
+  have hgoal : ∀ a : ℚ, a ≥ 1 → a ≤ 3 → (a - 2) ^ 2 ≤ 1 := by
+    intro a ha haa
     have ha : -1 ≤ a - 2 := by
       calc
         -1 = 1 - 2 := by ring
@@ -102,25 +100,16 @@ example : ∃! x : ℚ, ∀ a, (a ≥ 1 ∧ a ≤ 3) → (a - x) ^ 2 ≤ 1 := by
   · apply hgoal
   --second part, show that a thing that works must be 1
   intro y hy
-  --------------------------------------------------------------------
-  --(note to self: modify this whole part if simp trick gets resolved)
-  have h1in : (1 : ℚ) ≥ (1 : ℚ) ∧ (1 : ℚ) ≤ (3 : ℚ) := by
-    constructor
-    · extra
-    · calc
-        (1 : ℚ) ≤ 1 + 2 := by extra
-        _ = 3 := by numbers
-  have h1 : (1 ≥ 1 ∧ 1 ≤ 3) → (1 - y) ^ 2 ≤ 1 := hy 1
-  have h1 : (1 - y) ^ 2 ≤ 1 := by apply h1 h1in
-  have h3in : (3 : ℚ) ≥ (1 : ℚ) ∧ (3 : ℚ) ≤ (3 : ℚ) := by
-    constructor
-    · calc
-        (3 : ℚ) = 1 + 2 := by numbers
-        _ ≥ 1 := by extra
-    · extra
-  have h3 : (3 ≥ 1 ∧ 3 ≤ 3) → (3 - y) ^ 2 ≤ 1 := hy 3
-  have h3 : (3 - y) ^ 2 ≤ 1 := by apply h3 h3in
-  --------------------------------------------------------------------
+  have h1' : 1 ≥ 1 → 1 ≤ 3 → (1 - y) ^ 2 ≤ 1 := hy 1
+  have h1 : (1 - y) ^ 2 ≤ 1 := by
+    apply h1'
+    simp
+    simp
+  have h3' : 3 ≥ 1 → 3 ≤ 3 → (3 - y) ^ 2 ≤ 1 := hy 3
+  have h3 : (3 - y) ^ 2 ≤ 1 := by
+    apply h3'
+    simp
+    simp
   have hsquaresqueeze : (y - 2) ^ 2 ≤ 0 ^ 2 := by
     calc
       (y - 2) ^ 2 = ((1 - y) ^ 2 + (3 - y) ^ 2 - 2) / 2 := by ring
@@ -161,9 +150,7 @@ example : ∃! n : ℕ, ∀ a, n ≤ a := by
 
 
 --Macbeth 4.4.4
---I couldn't get the "simp" trick to work, so I ended up changing the goal to something equivalent
---example {p : ℕ} (hp : 2 ≤ p) (H : ∀ m : ℕ, 1 < m → m < p → ¬m ∣ p) : Prime p := by
-example {p : ℕ} (hp : 2 ≤ p) (H : ∀ m : ℕ, (1 < m ∧ m < p) → ¬m ∣ p) : Prime p := by
+example {p : ℕ} (hp : 2 ≤ p) (H : ∀ m : ℕ, 1 < m → m < p → ¬m ∣ p) : Prime p := by
   constructor
   · apply hp -- show that `2 ≤ p`
   intro m hmp
@@ -180,12 +167,9 @@ example {p : ℕ} (hp : 2 ≤ p) (H : ∀ m : ℕ, (1 < m ∧ m < p) → ¬m ∣
       right
       addarith [h_eq]
     · -- the case `m < p`
-      have h_range : 1 < m ∧ m < p := by
-        constructor
-        · apply hm_left
-        · apply h_lt
-      have hmeow : (1 < m ∧ m < p) → ¬m ∣ p := H m
-      have : ¬m ∣ p := by apply hmeow h_range
+      have hsimp : 1 < m → m < p → ¬m ∣ p := H m
+      have hmeow : ¬m ∣ p := by
+        apply hsimp hm_left h_lt
       contradiction
 
 
@@ -244,7 +228,11 @@ example {a b c : ℕ} (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (h_pyth : a ^ 2 + b
 
 --Macbeth 4.4.6.1
 example {x y : ℝ} (n : ℕ) (hx : 0 ≤ x) (hn : 0 < n) (h : y ^ n ≤ x ^ n) : y ≤ x := by
-  cancel n at h --WAIT REALLY????? IT WAS THAT EASY???? THEY FORGOT TO MAKE IT HARD???????
+  obtain htrivial | hinteresting := le_or_gt y x
+  · rel[htrivial]
+  · have hbad : y ^ n > x ^ n := by rel[hinteresting] --holy cow, it actually worked!
+    have hbad : ¬(y ^ n ≤ x ^ n) := not_le_of_lt hbad
+    contradiction
 
 
 --Macbeth 4.4.6.5
