@@ -65,45 +65,30 @@ example : forall_sufficiently_large n : ℕ, (3:ℤ) ^ n ≥ 2 ^ n + 100 := by
   intro n hn
   induction_from_starting_point n, hn with k hk IH
   · numbers --wow, numbers is on fire today!
-  · have IH' : 2 ^ k + 100 ≤ 3 ^ k := by addarith[IH] --just gotta flip it around for lean
-    have hduh : 3 ≥ 2 := by numbers
+  · have IH' : 2 ^ k + 100 ≤ (3:ℤ) ^ k := by addarith[IH] --just gotta flip it around for lean
+    have hduh : (3:ℤ) ≥ 2 := by numbers --btw, lean basically falls apart if you don't remind it that 3 is an integer at least a few times
     calc
-      3 ^ (k + 1) = 3 * 3 ^ k := by ring
+      (3:ℤ) ^ (k + 1) = 3 * 3 ^ k := by ring
       _ ≥ 3 * (2 ^ k + 100) := by rel[IH']
       _ ≥ 2 * (2 ^ k + 100) := by rel[hduh]
       _ = 2 ^ (k + 1) + 100 + 100 := by ring
       _ ≥ 2 ^ (k + 1) + 100 := by extra
-    --at this point I get 0 goals but get the following message:
-    ----'calc' tactic failed, has type
-    ----  3 ^ (k + 1) ≥ 2 ^ (k + 1) + 100
-    ----but it is expected to have type
-    ----  3 ^ (k + 1) ≥ 2 ^ (k + 1) + 100
-    -- ¯\_(ツ)_/¯
 
 
 --5(b.)
 --first, define the summation so we can use it in our goal
 def sumOfFirstNOdds : ℕ → ℕ
   | 0 => 0
-  | m + 1 => (sumOfFirstNOdds m) + 2 * (m + 1) - 1
-
---ring isn't working for one particular step of the proof
---no idea why, I've tried decomposing it every which way
---so to keep things clean here's a theorem that does what ring was supposed to do
-theorem lets_pretend_ring_actually_works_here (j : ℕ) : 2 + j * 2 + j ^ 2 - 1 = 1 + j * 2 + j ^ 2 := by
-  sorry -- (╯°□°)╯︵ ┻━┻
+  | m + 1 => (sumOfFirstNOdds m) + 2 * m + 1 --for some reason lean *really* doesn't like it if you write 2 * (m + 1) - 1 instead of 2 * m + 1
 
 --now we prove a stronger result, which we will use to solve the problem
 theorem hstronger (n: ℕ) : sumOfFirstNOdds n = (n ^ 2) := by
   simple_induction n with k IH
   · dsimp[sumOfFirstNOdds] --makes the goal 0 = 0 ^ 2
     numbers
-  · dsimp[sumOfFirstNOdds] --makes the goal sumOfFirstNOdds (k + 0) + 2 * (k + 0 + 1) - 1 = (k + 1) ^ 2
-    ring --makes the goal 2 + k * 2 + sumOfFirstNOdds k - 1 = 1 + k * 2 + k ^ 2
-    rw[IH] --makes the goal 2 + k * 2 + k ^ 2 - 1 = 1 + k * 2 + k ^ 2
-    --at this point ring should get the job done...but it doesn't!
-    --so let's pretend it does :)
-    apply lets_pretend_ring_actually_works_here
+  · dsimp[sumOfFirstNOdds] --makes the goal sumOfFirstNOdds (k + 0) + 2 * (k + 0) + 1 = (k + 1) ^ 2
+    ring --makes the goal 1 + k * 2 + sumOfFirstNOdds k = 1 + k * 2 + k ^ 2
+    rw[IH] --solves the damn thing! amazing!
 
 --now we use the stronger result to solve the problem
 example (n : ℕ) : ∃ j : ℕ, sumOfFirstNOdds n = j ^ 2 := by
