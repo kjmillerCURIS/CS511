@@ -81,16 +81,12 @@ def sumOfFirstNOdds : ℕ → ℕ
   | 0 => 0
   | m + 1 => (sumOfFirstNOdds m) + 2 * m + 1 --for some reason lean *really* doesn't like it if you write 2 * (m + 1) - 1 instead of 2 * m + 1
 
---now we prove a stronger result, which we will use to solve the problem
-lemma hstronger (n: ℕ) : sumOfFirstNOdds n = (n ^ 2) := by
+--now we use the stronger result to solve the problem
+theorem problem5b (n : ℕ) : ∃ j : ℕ, sumOfFirstNOdds n = j ^ 2 := by
+  use n
   simple_induction n with k IH
   · dsimp[sumOfFirstNOdds] --makes the goal 0 = 0 ^ 2
     numbers
   · dsimp[sumOfFirstNOdds] --makes the goal sumOfFirstNOdds (k + 0) + 2 * (k + 0) + 1 = (k + 1) ^ 2
     ring --makes the goal 1 + k * 2 + sumOfFirstNOdds k = 1 + k * 2 + k ^ 2
     rw[IH] --solves the dang thing! amazing!
-
---now we use the stronger result to solve the problem
-theorem problem5b (n : ℕ) : ∃ j : ℕ, sumOfFirstNOdds n = j ^ 2 := by
-  use n
-  apply hstronger --see lemma above
