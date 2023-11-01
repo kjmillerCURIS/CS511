@@ -78,15 +78,16 @@ theorem problem4d : forall_sufficiently_large n : ℕ, (3:ℤ) ^ n ≥ 2 ^ n + 1
 --5(b.)
 --first, define the summation so we can use it in our goal
 def foo : ℕ → ℕ
-  | 0     => 0
-  | n + 1 => foo (n) + 2 * n + 1
+  | 0     => 1
+  | n + 1 => foo (n) + 2 * n + 3
 
 --now we prove the thing
 theorem problem5b {n : ℕ} : ∃ (k : ℕ), foo (n) = k ^ 2 := by
-  use n
+  use n + 1
   simple_induction n with k IH
-  · dsimp[foo] --makes the goal 0 = 0 ^ 2
+  · dsimp[foo] --makes the goal 1 = (0 + 1) ^ 2
     numbers
-  · dsimp[foo] --makes the goal foo (k + 0) + 2 * (k + 0) + 1 = (k + 1) ^ 2
-    ring --makes the goal 1 + k * 2 + foo k = 1 + k * 2 + k ^ 2
-    rw[IH] --solves the dang thing! amazing!
+  · dsimp[foo] --makes the goal foo (k + 0) + 2 * (k + 0) + 3 = (k + 1 + 1) ^ 2
+    ring --makes the goal 3 + k * 2 + foo k = 4 + k * 4 + k ^ 2
+    rw[IH] --makes the goal 3 + k * 2 + (k + 1) ^ 2 = 4 + k * 4 + k ^ 2
+    ring
