@@ -17,16 +17,10 @@ import Library.Tactic.Addarith
 import Library.Tactic.Cancel
 import Library.Tactic.Use
 
+set_option push_neg.use_distrib true
+open Function
 
---necessary definitions, copied from Macbeth
-def Injective (f : X → Y) : Prop := ∀ {x1 x2 : X}, f x1 = f x2 → x1 = x2
-def Surjective (f : X → Y) : Prop := ∀ y : Y, ∃ x : X, f x = y
-def Bijective (f : X → Y) : Prop := Injective f ∧ Surjective f
-def comp (f : X → Y) (g : Y → Z) (x : X) : Z := g (f x)
-def Inverse (f : X → Y) (g : Y → X) : Prop := g ∘ f = id ∧ f ∘ g = id
-
-
---Macbeth 8.1.13.15
+/- 2 points -/
 theorem problem4a : ¬ ∀ (f : ℤ → ℤ), Surjective f → Surjective (fun x ↦ 2 * f x) := by
   dsimp[Surjective]
   push_neg --goal is now "there exists a function"
@@ -50,8 +44,7 @@ theorem problem4a : ¬ ∀ (f : ℤ → ℤ), Surjective f → Surjective (fun x
         _ = 1 + 1 := by ring
         _ > 1 := by extra
 
-
---Macbeth 8.1.13.16
+/- 2 points -/
 theorem problem4b : ¬ ∀ c : ℝ, Surjective (fun x ↦ c * x) := by
   dsimp[Surjective]
   push_neg
@@ -60,8 +53,7 @@ theorem problem4b : ¬ ∀ c : ℝ, Surjective (fun x ↦ c * x) := by
   ring
   numbers
 
-
---Macbeth 8.1.13.17
+/- 3 points -/
 theorem problem4c {f : ℚ → ℚ} (hf : ∀ x y, x < y → f x < f y) : Injective f := by
   dsimp[Injective]
   intro x1 x2
@@ -75,9 +67,9 @@ theorem problem4c {f : ℚ → ℚ} (hf : ∀ x y, x < y → f x < f y) : Inject
     have houtneq := ne_of_gt (hf hgreater)
     contradiction
 
-
---Macbeth 8.1.13.18
-theorem problem4d {f : X → ℕ} {x0 : X} (h0 : f x0 = 0) {i : X → X} (hi : ∀ x, f (i x) = f x + 1) : Surjective f := by
+/- 3 points -/
+theorem problem4d {f : X → ℕ} {x0 : X} (h0 : f x0 = 0) {i : X → X}
+    (hi : ∀ x, f (i x) = f x + 1) : Surjective f := by
   dsimp[Surjective]
   intro y --goal is now ∃ x, f x = y
   simple_induction y with k IH
@@ -88,8 +80,7 @@ theorem problem4d {f : X → ℕ} {x0 : X} (h0 : f x0 = 0) {i : X → X} (hi : �
     rw[hi]
     rw[hk]
 
-
---Macbeth 8.2.8.1
+/- 2 points -/
 theorem problem5a : Bijective (fun (x : ℝ) ↦ 4 - 3 * x) := by
   dsimp[Bijective]
   constructor
@@ -104,8 +95,7 @@ theorem problem5a : Bijective (fun (x : ℝ) ↦ 4 - 3 * x) := by
     use (4 - y) / 3
     ring
 
-
---Macbeth 8.2.8.2
+/- 2 points -/
 theorem problem5b : ¬ Bijective (fun (x : ℝ) ↦ x ^ 2 + 2 * x) := by
   --do a proof by contradiction, specifically by showing it's not injective
   by_cases hmeow : Bijective (fun (x : ℝ) ↦ x ^ 2 + 2 * x)
@@ -123,12 +113,13 @@ theorem problem5b : ¬ Bijective (fun (x : ℝ) ↦ x ^ 2 + 2 * x) := by
     contradiction
   · apply hmeow --already assuming the thing we want to prove
 
+def Inverse (f : X → Y) (g : Y → X) : Prop := g ∘ f = id ∧ f ∘ g = id
 
---Macbeth 8.3.10.2
 def u (x : ℝ) : ℝ := 5 * x + 1
 
 noncomputable def v (x : ℝ) : ℝ := (x - 1) / 5
 
+/- 3 points -/
 theorem problem5c : Inverse u v := by
   dsimp[Inverse]
   dsimp [(.∘.)] at *
@@ -143,9 +134,9 @@ theorem problem5c : Inverse u v := by
     rw[u, v]
     ring
 
-
---Macbeth 8.3.10.3
-theorem problem5d {f : X → Y} (hf : Injective f) {g : Y → Z} (hg : Injective g) : Injective (g ∘ f) := by
+/- 3 points -/
+theorem problem5d {f : X → Y} (hf : Injective f) {g : Y → Z} (hg : Injective g) :
+    Injective (g ∘ f) := by
   dsimp[Injective] at *
   intro x1 x2
   intro hgfeq
