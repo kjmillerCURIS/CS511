@@ -18,6 +18,7 @@ import Library.Tactic.Addarith
 import Library.Tactic.Cancel
 import Library.Tactic.Use
 import Library.Tactic.Product
+set_option push_neg.use_distrib true
 open Function
 
 
@@ -98,7 +99,7 @@ theorem problem4d {f : X → Y} {g1 g2 : Y → X} (h1 : Inverse f g1) (h2 : Inve
 
 
 --Macbeth 8.4.10.2
-theorem problem5ai : ¬ Injective (fun ((x, y) : ℤ × ℤ) ↦ x - 2 * y - 1) := by
+theorem problem5a1 : ¬ Injective (fun ((x, y) : ℤ × ℤ) ↦ x - 2 * y - 1) := by
   dsimp[Injective]
   push_neg
   use (3, 1), (1, 0)
@@ -106,7 +107,7 @@ theorem problem5ai : ¬ Injective (fun ((x, y) : ℤ × ℤ) ↦ x - 2 * y - 1) 
   · ring
   · ring
 
-theorem problem5aii : Surjective (fun ((x, y) : ℤ × ℤ) ↦ x - 2 * y - 1) := by
+theorem problem5a2 : Surjective (fun ((x, y) : ℤ × ℤ) ↦ x - 2 * y - 1) := by
   dsimp[Surjective]
   intro b
   use (b + 1, 0)
