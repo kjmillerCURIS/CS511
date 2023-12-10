@@ -19,12 +19,13 @@ import Library.Tactic.Numbers
 import Library.Tactic.Product
 import Library.Tactic.Rel
 import Library.Tactic.Use
+
 set_option push_neg.use_distrib true
 open Set
+
 notation:50 a:50 " ⊈ " b:50 => ¬ (a ⊆ b)
 
-
---Macbeth 9.1.10.7
+/- 3 points -/
 theorem problem4a : {a : ℕ | 5 ∣ a} ⊈ {x : ℕ | 20 ∣ x} := by
   dsimp[Set.subset_def]
   dsimp[(.∣.)] at *
@@ -49,35 +50,26 @@ theorem problem4a : {a : ℕ | 5 ∣ a} ⊈ {x : ℕ | 20 ∣ x} := by
           _ ≤ 20 * c := by rel[hpos]
       apply ne_of_lt H
 
-
---Macbeth 9.1.10.13
-theorem problem4b : {k : ℤ | 8 ∣ 6 * k} ≠ {l : ℤ | 8 ∣ l} := by
+/- 3 points -/
+theorem problem4b : {k : ℤ | 7 ∣ 9 * k} = {l : ℤ | 7 ∣ l} := by
   dsimp
   dsimp[(.∣.)] at *
-  push_neg
-  use 4
-  left
+  intro x
   constructor
-  · use 3
-    numbers
-  · intro c
-    obtain hzero | hpos := le_or_gt c 0
-    · have H : 4 > 8 * c := by
-        calc
-          (4 : ℤ) > 0 := by extra
-          _ = 8 * 0 := by ring
-          _ ≥ 8 * c := by rel[hzero]
-      apply ne_of_gt H
-    · have hpos : 1 ≤ c := by extra
-      have H : 4 < 8 * c := by
-        calc
-          (4 : ℤ) < 4 + 4 := by extra
-          _ = 8 * 1 := by ring
-          _ ≤ 8 * c := by rel[hpos]
-      apply ne_of_lt H
+  · intro hleft
+    obtain ⟨cleft, hleft⟩ := hleft
+    use 4 * x - 3 * cleft
+    calc
+      x = 7 * 4 * x - 3 * (9 * x) := by ring
+      _ = 7 * 4 * x - 3 * (7 * cleft) := by rw[hleft]
+      _ = 7 * (4 * x - 3 * cleft) := by ring
+  · intro hleft
+    obtain ⟨cleft, hleft⟩ := hleft
+    use 9 * cleft
+    rw[hleft]
+    ring
 
-
---Macbeth 9.1.10.15
+/- 4 points -/
 --my solution inspired by example 9.1.8 from macbeth
 theorem problem4c : {x : ℝ | x ^ 2 + 3 * x + 2 = 0} = {-1, -2} := by
   ext x
@@ -101,9 +93,9 @@ theorem problem4c : {x : ℝ | x ^ 2 + 3 * x + 2 = 0} = {-1, -2} := by
     · calc x ^ 2 + 3 * x + 2 = (-2) ^ 2 + 3 * (-2) + 2 := by rw [h]
         _ = 0 := by numbers
 
-
---Macbeth 9.2.8.5
-theorem problem5a : {r : ℤ | r ≡ 7 [ZMOD 10] } ⊆ {s : ℤ | s ≡ 1 [ZMOD 2]} ∩ {t : ℤ | t ≡ 2 [ZMOD 5]} := by
+/- 3 points -/
+theorem problem5a : {r : ℤ | r ≡ 7 [ZMOD 10] }
+    ⊆ {s : ℤ | s ≡ 1 [ZMOD 2]} ∩ {t : ℤ | t ≡ 2 [ZMOD 5]} := by
     dsimp[Set.subset_def]
     dsimp[Int.ModEq] at *
     dsimp[(.∣.)] at *
@@ -122,8 +114,7 @@ theorem problem5a : {r : ℤ | r ≡ 7 [ZMOD 10] } ⊆ {s : ℤ | s ≡ 1 [ZMOD 
         _ = 10 * b + 5 := by rw[h710]
         _ = 5 * (2 * b + 1) := by ring
 
-
---Macbeth 9.2.8.6
+/- 3 points -/
 theorem problem5b : {n : ℤ | 5 ∣ n} ∩ {n : ℤ | 8 ∣ n} ⊆ {n : ℤ | 40 ∣ n} := by
   dsimp[Set.subset_def]
   dsimp[(.∣.)] at *
@@ -145,8 +136,7 @@ theorem problem5b : {n : ℤ | 5 ∣ n} ∩ {n : ℤ | 8 ∣ n} ⊆ {n : ℤ | 4
     _ = 40 * 2 * a - 40 * 3 * b := by rw[hright]
     _ = 40 * (2 * a - 3 * b) := by ring
 
-
---Macbeth 9.2.8.7
+--"helper" theorem for problem5c
 theorem problem5chelper (x b c multiplier other_multiplier : ℤ) (h0 : multiplier > 1) (h1 : x = multiplier * b) : ¬(x ^ 2 - 1 = multiplier * other_multiplier * c) := by
   intro hcont
   have hcont : multiplier * (multiplier * b ^ 2 - other_multiplier * c) = 1 := by
@@ -173,7 +163,9 @@ theorem problem5chelper (x b c multiplier other_multiplier : ℤ) (h0 : multipli
     have hcont : multiplier * (multiplier * b ^ 2 - other_multiplier * c) ≠ 1 := by apply ne_of_gt hcont
     contradiction
 
-theorem problem5c : {n : ℤ | 3 ∣ n} ∪ {n : ℤ | 2 ∣ n} ⊆ {n : ℤ | n ^ 2 ≡ 1 [ZMOD 6]}ᶜ := by
+/- 4 points -/
+theorem problem5c :
+    {n : ℤ | 3 ∣ n} ∪ {n : ℤ | 2 ∣ n} ⊆ {n : ℤ | n ^ 2 ≡ 1 [ZMOD 6]}ᶜ := by
   dsimp[Set.subset_def]
   dsimp[Int.ModEq] at *
   dsimp[(.∣.)] at *
